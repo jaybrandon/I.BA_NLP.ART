@@ -1,5 +1,5 @@
 [project]
-name = "i-ba-nlp-art"
+name = "art"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,8 +9,12 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "datasets>=5.1.0",
+    "gensim>=4.4.0",
+    "nltk>=3.10.4",
     "numpy>=2.5.4",
     "polars>=2.1.0",
+    "python-dotenv>=1.2.4",
+    "torch>=2.14.1",
 ]
 
 [project.scripts]
@@ -23,5 +27,6 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",
+    "ipywidgets>=8.1.9",
     "pre-commit>=4.7.0",
 ]
