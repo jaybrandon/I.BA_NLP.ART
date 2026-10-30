@@ -32,4 +32,4 @@ class EmbeddingClassifier(nn.Module):
     def forward(self, x):
         s1 = self.relu(self.fc1(x))
         output = self.fc2(s1)
-        return output
+        return output.squeeze(-1)
