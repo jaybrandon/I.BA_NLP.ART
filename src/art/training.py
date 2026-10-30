@@ -18,12 +18,12 @@ def fit(
     checkpoint_path: Path,
     log_fn,
     device,
-):
+) -> dict:
 
     best_metrics = {"val_accuracy": -np.inf, "val_loss": np.inf}
     patience = early_stopping
 
-    for i in trange(epochs, desc="epochs..."):
+    for i in trange(epochs, desc="epochs"):
         train_loss, train_accuracy = train(
             train_loader, model, loss_fn, optimizer, device
         )
@@ -67,7 +67,7 @@ def train(dataloader, model, loss_fn, optimizer, device):
 
     train_loss, correct = 0, 0
 
-    prog = tqdm(dataloader, "train...", num_batches, leave=False)
+    prog = tqdm(dataloader, "train", num_batches, leave=False)
 
     for batch in prog:
         X, y = batch["embed"].to(device), batch["label"].to(device)
@@ -98,7 +98,7 @@ def evaluate(dataloader, model, loss_fn, device):
     val_loss, correct = 0, 0
 
     with torch.no_grad():
-        for batch in tqdm(dataloader, "eval...", num_batches, leave=False):
+        for batch in tqdm(dataloader, "eval", num_batches, leave=False):
             X, y = batch["embed"].to(device), batch["label"].to(device)
 
             pred = model(X)
