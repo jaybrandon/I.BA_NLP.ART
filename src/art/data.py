@@ -15,4 +15,6 @@ def get_dataset() -> datasets.DatasetDict:
     # Train set contains empty hypotheses
     ds["train"] = ds["train"].filter(lambda x: not has_empty_field(x))
 
+    ds = ds.map(lambda x: {"label": x["label"] - 1})
+
     return ds
