@@ -14,7 +14,10 @@ dependencies = [
     "numpy>=2.5.4",
     "polars>=2.1.0",
     "python-dotenv>=1.2.4",
+    "scikit-learn>=1.9.1",
     "torch>=2.14.1",
+    "tqdm>=4.70.1",
+    "wandb>=0.31.0",
 ]
 
 [project.scripts]
