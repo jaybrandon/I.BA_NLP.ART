@@ -1,17 +1,21 @@
+from pathlib import Path
+
 import numpy as np
 import torch
+from torch import nn
+from torch.utils.data import DataLoader
 from tqdm import tqdm, trange
 
 
 def fit(
-    model,
-    train_loader,
-    val_loader,
-    optimizer,
+    model: nn.Module,
+    train_loader: DataLoader,
+    val_loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
     loss_fn,
-    epochs,
-    early_stopping,
-    checkpoint_path,
+    epochs: int,
+    early_stopping: int,
+    checkpoint_path: Path,
     log_fn,
     device,
 ):
@@ -41,6 +45,7 @@ def fit(
             and val_loss < best_metrics["val_loss"]
         ):
             best_metrics = metrics
+            checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
             torch.save(model.state_dict(), checkpoint_path)
             patience = early_stopping
         else:
@@ -64,8 +69,8 @@ def train(dataloader, model, loss_fn, optimizer, device):
 
     prog = tqdm(dataloader, "train...", num_batches, leave=False)
 
-    for X, y in prog:
-        X, y = X.to(device), y.to(device)
+    for batch in prog:
+        X, y = batch["embed"].to(device), batch["label"].to(device)
 
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -93,8 +98,8 @@ def evaluate(dataloader, model, loss_fn, device):
     val_loss, correct = 0, 0
 
     with torch.no_grad():
-        for X, y in tqdm(dataloader, "eval...", num_batches, leave=False):
-            X, y = X.to(device), y.to(device)
+        for batch in tqdm(dataloader, "eval...", num_batches, leave=False):
+            X, y = batch["embed"].to(device), batch["label"].to(device)
 
             pred = model(X)
             val_loss += loss_fn(pred, y).item()
