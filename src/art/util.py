@@ -23,3 +23,12 @@ def set_seeds(seed: int = SEED):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
+
+
+def get_env(key: str, default=None) -> str:
+    env = os.environ.get(key)
+    if not env:
+        if default:
+            return default
+        raise ValueError(f"{key} environment variable is not set")
+    return env
