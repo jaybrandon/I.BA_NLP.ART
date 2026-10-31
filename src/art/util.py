@@ -32,3 +32,9 @@ def get_env(key: str, default=None) -> str:
             return default
         raise ValueError(f"{key} environment variable is not set")
     return env
+
+
+def get_device() -> str:
+    if torch.accelerator.is_available():
+        return torch.accelerator.current_accelerator().type
+    return "cpu"

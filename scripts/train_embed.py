@@ -1,20 +1,19 @@
 import argparse
 from pathlib import Path
 
-import torch
 import yaml
 from dotenv import load_dotenv
 from torch.nn.functional import cross_entropy
 from torch.optim import AdamW
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
 
 import wandb
 from art.config import CHECKPOINTS_DIR, ROOT, W2V_MODEL
-from art.data import get_dataset
+from art.data import get_dataset, to_tensor_ds
 from art.embedding import add_embed
 from art.models import EmbeddingClassifier, load_w2v
 from art.training import fit
-from art.util import get_env, set_seeds
+from art.util import get_device, get_env, set_seeds
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", type=Path, required=True)
@@ -28,11 +27,7 @@ cfg["embedding"] = W2V_MODEL
 
 load_dotenv()
 
-device = (
-    torch.accelerator.current_accelerator().type
-    if torch.accelerator.is_available()
-    else "cpu"
-)
+device = get_device()
 print(f"Using {device} device")
 
 wv = load_w2v()
@@ -41,12 +36,6 @@ print("Loading dataset...")
 
 ds = get_dataset()
 ds = add_embed(ds, wv).with_format("torch", ["embed", "label"])
-
-
-def to_tensor_ds(split):
-    data = split[:]
-    return TensorDataset(data["embed"], data["label"])
-
 
 train_ds = to_tensor_ds(ds["train"])
 val_ds = to_tensor_ds(ds["validation"])

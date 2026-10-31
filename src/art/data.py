@@ -2,6 +2,7 @@ import re
 
 import datasets
 from datasets import load_dataset
+from torch.utils.data import TensorDataset
 
 
 def get_dataset() -> datasets.DatasetDict:
@@ -18,3 +19,9 @@ def get_dataset() -> datasets.DatasetDict:
     ds = ds.map(lambda x: {"label": x["label"] - 1})
 
     return ds
+
+
+def to_tensor_ds(split: datasets.Dataset) -> TensorDataset:
+    """Materialize a torch-formatted split with ``embed`` and ``label`` columns."""
+    data = split[:]
+    return TensorDataset(data["embed"], data["label"])
