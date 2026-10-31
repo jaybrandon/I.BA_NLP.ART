@@ -1,5 +1,5 @@
-import gensim.downloader as api
 import torch
+from dotenv import load_dotenv
 from torch.nn.functional import cross_entropy
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
@@ -7,10 +7,16 @@ from torch.utils.data import DataLoader
 from art.config import CHECKPOINTS_DIR
 from art.data import get_dataset
 from art.embedding import add_embed
-from art.models import EmbeddingClassifier
+from art.models import EmbeddingClassifier, load_w2v
 from art.training import fit
+from art.util import set_seeds
 
-wv = api.load("word2vec-google-news-300")
+load_dotenv()
+set_seeds()
+
+wv = load_w2v()
+
+print("Loading dataset...")
 
 ds = get_dataset()
 
@@ -53,7 +59,7 @@ best_metrics = fit(
     10,
     3,
     CHECKPOINTS_DIR / "best.pt",
-    lambda x: print(x),
+    lambda x: (),
     device,
 )
 

@@ -21,7 +21,7 @@ def add_embed(
             token, oov, oov_rate = to_tokens(item[part], wv)
 
             if oov_rate and oov_rate >= 0.5:
-                log.warning(
+                log.debug(
                     f"High oov_rate for '{item[part]}': oov: {oov}, oov_rate: {oov_rate}"
                 )
 
