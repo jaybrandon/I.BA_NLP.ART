@@ -35,7 +35,7 @@ wv = load_w2v()
 print("Loading dataset...")
 
 ds = get_dataset()
-ds = add_embed(ds, wv).with_format("torch", ["embed", "label"])
+ds = add_embed(ds, wv, cfg["input"]).with_format("torch", ["embed", "label"])
 
 train_ds = to_tensor_ds(ds["train"])
 val_ds = to_tensor_ds(ds["validation"])

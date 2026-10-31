@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 def add_embed(
     ds: datasets.DatasetDict,
     wv: gensim.models.KeyedVectors,
+    input_mode: str = "split_h",
     mean_cat: bool = True,
 ) -> datasets.DatasetDict:
     def _to_mean_embed(item):
@@ -25,6 +26,14 @@ def add_embed(
                 )
 
             embed[part] = wv.get_mean_vector(token, ignore_missing=False)
+
+        if input_mode == "hyp_only":
+            return {
+                "embed": [
+                    embed["hypothesis_1"],
+                    embed["hypothesis_2"],
+                ]
+            }
         return {
             "embed": [
                 np.concatenate(
@@ -48,7 +57,7 @@ def add_embed(
         for split in ds:
             ds[split] = ds[split].map(
                 _to_mean_embed,
-                new_fingerprint=f"{ds[split]._fingerprint}-w2v-mean",
+                new_fingerprint=f"{ds[split]._fingerprint}-w2v-mean-{input_mode}",
             )
 
     return ds

@@ -51,7 +51,9 @@ wv = load_w2v()
 print("Loading dataset...")
 
 ds = get_dataset()
-ds = add_embed(DatasetDict(test=ds["test"]), wv).with_format("torch", ["embed", "label"])
+ds = add_embed(DatasetDict(test=ds["test"]), wv, config["input"]).with_format(
+    "torch", ["embed", "label"]
+)
 
 test_ds = to_tensor_ds(ds["test"])
 
