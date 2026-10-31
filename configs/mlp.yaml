@@ -3,10 +3,10 @@ input: "split_h"
 epochs: 200
 batch_size: 128
 patience: 5
-hidden_dim: 1800
-dropout: 0.0
-weight_decay: 0.3
-learning_rate: 0.001
+hidden_dim: 512
+dropout: 0.1543301193884407
+weight_decay: 0.0001650813490894716
+learning_rate: 0.0014226850860688416
 optimizer: "adamw"
 loss_fn: "cross_entropy"
 seed: 42
