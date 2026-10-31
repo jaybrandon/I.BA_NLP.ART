@@ -49,7 +49,6 @@ def add_embed(
             ds[split] = ds[split].map(
                 _to_mean_embed,
                 new_fingerprint=f"{ds[split]._fingerprint}-w2v-mean",
-                load_from_cache_file=False,
             )
 
     return ds
