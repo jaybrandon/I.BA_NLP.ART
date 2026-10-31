@@ -4,7 +4,9 @@ epochs: 100
 batch_size: 128
 patience: 5
 hidden_dim: 1800
+dropout: 0.0
 weight_decay: 0.3
 learning_rate: 0.001
 optimizer: "adamw"
 loss_fn: "cross_entropy"
+seed: 42
