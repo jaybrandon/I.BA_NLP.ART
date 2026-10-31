@@ -69,8 +69,8 @@ def train(dataloader, model, loss_fn, optimizer, device):
 
     prog = tqdm(dataloader, "train", num_batches, leave=False)
 
-    for batch in prog:
-        X, y = batch["embed"].to(device), batch["label"].to(device)
+    for X, y in prog:
+        X, y = X.to(device), y.to(device)
 
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -98,8 +98,8 @@ def evaluate(dataloader, model, loss_fn, device):
     val_loss, correct = 0, 0
 
     with torch.no_grad():
-        for batch in tqdm(dataloader, "eval", num_batches, leave=False):
-            X, y = batch["embed"].to(device), batch["label"].to(device)
+        for X, y in tqdm(dataloader, "eval", num_batches, leave=False):
+            X, y = X.to(device), y.to(device)
 
             pred = model(X)
             val_loss += loss_fn(pred, y).item()

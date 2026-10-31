@@ -6,7 +6,7 @@ import yaml
 from dotenv import load_dotenv
 from torch.nn.functional import cross_entropy
 from torch.optim import AdamW
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, TensorDataset
 
 import wandb
 from art.config import CHECKPOINTS_DIR, ROOT, W2V_MODEL
@@ -35,6 +35,24 @@ device = (
 )
 print(f"Using {device} device")
 
+wv = load_w2v()
+
+print("Loading dataset...")
+
+ds = get_dataset()
+ds = add_embed(ds, wv).with_format("torch", ["embed", "label"])
+
+
+def to_tensor_ds(split):
+    data = split[:]
+    return TensorDataset(data["embed"], data["label"])
+
+
+train_ds = to_tensor_ds(ds["train"])
+val_ds = to_tensor_ds(ds["validation"])
+
+in_dim = train_ds.tensors[0].shape[-1]
+
 
 def main():
     with wandb.init(
@@ -54,39 +72,14 @@ def main():
         )
         run.tags = (config.model, config.input)
 
-        if config.input != "split_h":
-            raise ValueError(f"Unsupported input format: {config.input}")
-
         set_seeds(config.seed)
-
-        wv = load_w2v()
-
-        print("Loading dataset...")
-
-        ds = get_dataset()
-        ds = add_embed(ds, wv).with_format("torch", ["embed", "label"])
-
-        in_dim = ds["train"][0]["embed"].shape[-1]
 
         model = EmbeddingClassifier(in_dim, 1, config.hidden_dim, config.dropout)
         model.to(device)
         run.summary["n_params"] = sum(p.numel() for p in model.parameters())
 
-        train_loader = DataLoader(
-            ds["train"],
-            batch_size=config.batch_size,
-            shuffle=True,
-            num_workers=4,
-            pin_memory=True,
-        )
-
-        val_loader = DataLoader(
-            ds["validation"],
-            batch_size=config.batch_size,
-            shuffle=False,
-            num_workers=4,
-            pin_memory=True,
-        )
+        train_loader = DataLoader(train_ds, batch_size=config.batch_size, shuffle=True)
+        val_loader = DataLoader(val_ds, batch_size=config.batch_size, shuffle=False)
 
         optimizer = AdamW(
             model.parameters(),
