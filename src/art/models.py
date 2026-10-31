@@ -16,11 +16,12 @@ def load_w2v() -> KeyedVectors:
 
 
 class EmbeddingClassifier(nn.Module):
-    def __init__(self, in_dim, out_dim, hidden_dim):
+    def __init__(self, in_dim, out_dim, hidden_dim, dropout=0.0):
         super().__init__()
 
         self.fc1 = nn.Linear(in_dim, hidden_dim)
         self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(dropout)
         self.fc2 = nn.Linear(hidden_dim, out_dim)
 
         self.reset_parameters()
@@ -30,6 +31,6 @@ class EmbeddingClassifier(nn.Module):
         self.fc2.reset_parameters()
 
     def forward(self, x):
-        s1 = self.relu(self.fc1(x))
+        s1 = self.dropout(self.relu(self.fc1(x)))
         output = self.fc2(s1)
         return output.squeeze(-1)
