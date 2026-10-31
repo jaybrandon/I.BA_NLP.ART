@@ -13,7 +13,6 @@ def add_embed(
     ds: datasets.DatasetDict,
     wv: gensim.models.KeyedVectors,
     mean_cat: bool = True,
-    split_h: bool = True,
 ) -> datasets.DatasetDict:
     def _to_mean_embed(item):
         embed = {}
@@ -26,41 +25,30 @@ def add_embed(
                 )
 
             embed[part] = wv.get_mean_vector(token, ignore_missing=False)
-        if split_h:
-            return {
-                "embed": [
-                    np.concatenate(
-                        [
-                            embed["observation_1"],
-                            embed["hypothesis_1"],
-                            embed["observation_2"],
-                        ]
-                    ),
-                    np.concatenate(
-                        [
-                            embed["observation_1"],
-                            embed["hypothesis_2"],
-                            embed["observation_2"],
-                        ]
-                    ),
-                ]
-            }
         return {
-            "embed": np.concatenate(
-                [
-                    embed["observation_1"],
-                    embed["hypothesis_1"],
-                    embed["hypothesis_2"],
-                    embed["observation_2"],
-                ]
-            )
+            "embed": [
+                np.concatenate(
+                    [
+                        embed["observation_1"],
+                        embed["hypothesis_1"],
+                        embed["observation_2"],
+                    ]
+                ),
+                np.concatenate(
+                    [
+                        embed["observation_1"],
+                        embed["hypothesis_2"],
+                        embed["observation_2"],
+                    ]
+                ),
+            ]
         }
 
     if mean_cat:
         for split in ds:
             ds[split] = ds[split].map(
                 _to_mean_embed,
-                new_fingerprint=f"{ds[split]._fingerprint}-w2v-mean-{split_h}",
+                new_fingerprint=f"{ds[split]._fingerprint}-w2v-mean",
                 load_from_cache_file=False,
             )
 
