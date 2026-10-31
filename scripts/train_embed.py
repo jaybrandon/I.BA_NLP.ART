@@ -50,7 +50,7 @@ def main():
         run.name = (
             f"{config.model}-w2v-{config.input}-h{config.hidden_dim}"
             f"-lr{config.learning_rate:g}-wd{config.weight_decay:g}"
-            f"-do{config.dropout:g}"
+            f"-do{config.dropout:g}-bs{config.batch_size}"
         )
         run.tags = (config.model, config.input)
 
