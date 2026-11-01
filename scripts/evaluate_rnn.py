@@ -67,6 +67,7 @@ model = RNNClassifier(
     config["bidirectional"],
     config["rnn_layers"],
     config.get("dropout", 0.0),
+    config.get("pooling", "last"),
 )
 model.load_state_dict(torch.load(checkpoint, map_location=device))
 model.to(device)

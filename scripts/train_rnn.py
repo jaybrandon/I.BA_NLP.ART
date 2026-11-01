@@ -59,6 +59,7 @@ def main():
             f"-l{config.rnn_layers}-h{config.rnn_hidden_dim}-mlp{config.hidden_dim}"
             f"-{config.input}-lr{config.learning_rate:g}-wd{config.weight_decay:g}"
             f"-do{config.dropout:g}-bs{config.batch_size}"
+            f"-{config.pooling}"
         )
         run.tags = (
             config.model,
@@ -77,6 +78,7 @@ def main():
             config.bidirectional,
             config.rnn_layers,
             config.dropout,
+            config.pooling,
         )
         model.to(device)
         run.summary["n_params"] = sum(

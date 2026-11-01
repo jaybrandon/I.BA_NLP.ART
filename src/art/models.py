@@ -2,7 +2,7 @@ import gensim.downloader as api
 import torch
 from gensim.models.keyedvectors import KeyedVectors
 from torch import nn
-from torch.nn.utils.rnn import pack_padded_sequence
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 from art.config import W2V_MODEL, W2V_MODEL_PATH
 
@@ -48,8 +48,13 @@ class RNNClassifier(nn.Module):
         bidirectional: bool = False,
         rnn_layers: int = 2,
         dropout: float = 0.0,
+        pooling: str = "last",
     ):
         super().__init__()
+
+        if pooling not in ("last", "mean", "max"):
+            raise ValueError(f"Unknown pooling: {pooling}")
+        self.pooling = pooling
 
         self.embeddings = nn.Embedding.from_pretrained(
             embeddings, freeze=True, padding_idx=0
@@ -96,13 +101,25 @@ class RNNClassifier(nn.Module):
 
         e = self.embeddings(x)  # (2B, S, 300)
         p = pack_padded_sequence(e, lengths, batch_first=True, enforce_sorted=False)
-        _, h_n = self.rnn(p)
-        if isinstance(h_n, tuple):  # LSTM returns (h_n, c_n)
-            h_n = h_n[0]
+        out, h_n = self.rnn(p)
 
-        if self.rnn.bidirectional:
-            h = torch.cat([h_n[-2], h_n[-1]], dim=-1)  # (2B, 2H)
+        if self.pooling == "mean":
+            out, _ = pad_packed_sequence(out, batch_first=True)  # (2B, S, H * dirs)
+            # padded steps are zero, so divide the sum by the true lengths
+            h = out.sum(dim=1) / lengths.to(out.device).unsqueeze(-1)  # (2B, H * dirs)
+        elif self.pooling == "max":
+            # pad with -inf so padded steps never win the max
+            out, _ = pad_packed_sequence(
+                out, batch_first=True, padding_value=float("-inf")
+            )  # (2B, S, H * dirs)
+            h = out.max(dim=1).values  # (2B, H * dirs)
         else:
-            h = h_n[-1]  # (2B, H)
+            if isinstance(h_n, tuple):  # LSTM returns (h_n, c_n)
+                h_n = h_n[0]
+
+            if self.rnn.bidirectional:
+                h = torch.cat([h_n[-2], h_n[-1]], dim=-1)  # (2B, 2H)
+            else:
+                h = h_n[-1]  # (2B, H)
 
         return self.mlp(h).reshape(B, C)  # (B, 2) logits
