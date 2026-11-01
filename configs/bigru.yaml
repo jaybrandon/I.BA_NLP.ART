@@ -6,12 +6,12 @@ patience: 5
 rnn_type: "gru"
 bidirectional: true
 rnn_layers: 2
-pooling: "last"
+pooling: "max"
 rnn_hidden_dim: 128
-hidden_dim: 512
-dropout: 0.11708544757217976
-weight_decay: 0.00022315463007602197
-learning_rate: 0.0009009370393325696
+hidden_dim: 256
+dropout: 0.09750676411523752
+weight_decay: 0.07092178933404386
+learning_rate: 0.0016637145412880204
 optimizer: "adamw"
 loss_fn: "cross_entropy"
 seed: 42
