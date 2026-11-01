@@ -1,5 +1,3 @@
-from enum import Enum
-
 import gensim.downloader as api
 import torch
 from gensim.models.keyedvectors import KeyedVectors
@@ -40,17 +38,12 @@ class MLPClassifier(nn.Module):
         return output.squeeze(-1)
 
 
-class RnnType(Enum):
-    LSTM = 0
-    GRU = 1
-
-
 class RNNClassifier(nn.Module):
     def __init__(
         self,
         hidden_dim: int,
         embeddings: torch.Tensor,
-        rnn_type: RnnType,
+        rnn_type: str,
         mlp_hidden_dim: int,
         bidirectional: bool = False,
         rnn_layers: int = 2,
@@ -62,12 +55,12 @@ class RNNClassifier(nn.Module):
             embeddings, freeze=True, padding_idx=0
         )
 
-        if rnn_type == RnnType.LSTM:
+        if rnn_type == "lstm":
             self.rnn = nn.LSTM(
                 embeddings.shape[1],
                 hidden_dim,
                 rnn_layers,
-                dropout=dropout,
+                dropout=dropout if rnn_layers > 1 else 0.0,
                 bidirectional=bidirectional,
                 batch_first=True,
             )
@@ -76,7 +69,7 @@ class RNNClassifier(nn.Module):
                 embeddings.shape[1],
                 hidden_dim,
                 rnn_layers,
-                dropout=dropout,
+                dropout=dropout if rnn_layers > 1 else 0.0,
                 bidirectional=bidirectional,
                 batch_first=True,
             )
