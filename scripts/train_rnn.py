@@ -55,11 +55,12 @@ def main():
         run.define_metric("*", step_metric="epoch")
 
         run.name = (
-            f"{config.model}-w2v-{config.input}-h{config.hidden_dim}"
-            f"-lr{config.learning_rate:g}-wd{config.weight_decay:g}"
+            f"{'bi' if config.bidirectional else ''}{config.rnn_type}"
+            f"-l{config.rnn_layers}-h{config.rnn_hidden_dim}-mlp{config.hidden_dim}"
+            f"-{config.input}-lr{config.learning_rate:g}-wd{config.weight_decay:g}"
             f"-do{config.dropout:g}-bs{config.batch_size}"
         )
-        run.tags = (config.model, config.input)
+        run.tags = (config.model, config.rnn_type, config.input)
 
         set_seeds(config.seed)
 
