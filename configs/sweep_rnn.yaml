@@ -18,13 +18,7 @@ parameters:
     distribution: uniform
     min: 0.0
     max: 0.5
-  rnn_type:
-    values: ["lstm", "gru"]
-  bidirectional:
-    values: [true, false]
   rnn_hidden_dim:
     values: [128, 256, 512]
   hidden_dim:
     values: [128, 256, 512]
-  batch_size:
-    values: [32, 64, 128]

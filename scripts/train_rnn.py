@@ -60,7 +60,12 @@ def main():
             f"-{config.input}-lr{config.learning_rate:g}-wd{config.weight_decay:g}"
             f"-do{config.dropout:g}-bs{config.batch_size}"
         )
-        run.tags = (config.model, config.rnn_type, config.input)
+        run.tags = (
+            config.model,
+            config.rnn_type,
+            "bi" if config.bidirectional else "uni",
+            config.input,
+        )
 
         set_seeds(config.seed)
 
