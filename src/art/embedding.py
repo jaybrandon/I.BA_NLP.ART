@@ -3,12 +3,34 @@ import logging
 import datasets
 import gensim
 import numpy as np
-from datasets import List, Value
+import torch
+from datasets import DatasetDict, List, Value
 from datasets.fingerprint import Hasher
 
 from art.preprocess import to_tokens
 
 log = logging.getLogger(__name__)
+
+COLS = ["observation_1", "observation_2", "hypothesis_1", "hypothesis_2"]
+
+
+def build_vocab(ds: DatasetDict, wv) -> tuple[dict[str, int], torch.Tensor]:
+    """Build a token -> index vocab over all splits and text columns and the matching w2v matrix."""
+    vocab = {"<pad>": 0, "<unk>": 1}
+    for split in ds.values():
+        for col in COLS:
+            for text in split[col]:
+                tokens, _, _ = to_tokens(text, wv)
+                for t in tokens:
+                    vocab.setdefault(t, len(vocab))
+
+    # <pad> and <unk> stay zero vectors
+    embeddings = torch.zeros(len(vocab), wv.vector_size)
+    for t, i in vocab.items():
+        if t in wv:
+            embeddings[i] = torch.from_numpy(wv[t].copy()).float()
+
+    return vocab, embeddings
 
 
 def add_embed(
@@ -23,15 +45,15 @@ def add_embed(
 
     def to_mean_embed(item):
         embed = {}
-        for part in ["observation_1", "observation_2", "hypothesis_1", "hypothesis_2"]:
-            token, oov, oov_rate = to_tokens(item[part], wv)
+        for col in COLS:
+            token, oov, oov_rate = to_tokens(item[col], wv)
 
             if oov_rate and oov_rate >= 0.5:
                 log.debug(
-                    f"High oov_rate for '{item[part]}': oov: {oov}, oov_rate: {oov_rate}"
+                    f"High oov_rate for '{item[col]}': oov: {oov}, oov_rate: {oov_rate}"
                 )
 
-            embed[part] = wv.get_mean_vector(token, ignore_missing=True)
+            embed[col] = wv.get_mean_vector(token, ignore_missing=True)
 
         if input_mode == "hyp_only":
             return {
