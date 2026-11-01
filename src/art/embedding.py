@@ -81,8 +81,8 @@ def add_embed(
             ]
         }
 
-    def to_embed_idx(item):
-        embed = {}
+    def to_embed_ids(item):
+        ids = {}
         for part in ["observation_1", "observation_2", "hypothesis_1", "hypothesis_2"]:
             tokens, oov, oov_rate = to_tokens(item[part], wv)
 
@@ -91,19 +91,19 @@ def add_embed(
                     f"High oov_rate for '{item[part]}': oov: {oov}, oov_rate: {oov_rate}"
                 )
 
-            embed[part] = [vocab[t] for t in tokens]
+            ids[part] = [vocab[t] for t in tokens]
 
         if input_mode == "hyp_only":
             return {
-                "embed": [
-                    embed["hypothesis_1"],
-                    embed["hypothesis_2"],
+                "ids": [
+                    ids["hypothesis_1"],
+                    ids["hypothesis_2"],
                 ]
             }
         return {
-            "embed": [
-                embed["observation_1"] + embed["hypothesis_1"] + embed["observation_2"],
-                embed["observation_1"] + embed["hypothesis_2"] + embed["observation_2"],
+            "ids": [
+                ids["observation_1"] + ids["hypothesis_1"] + ids["observation_2"],
+                ids["observation_1"] + ids["hypothesis_2"] + ids["observation_2"],
             ]
         }
 
@@ -117,9 +117,9 @@ def add_embed(
         vocab_hash = Hasher.hash(vocab)
         for split in ds:
             features = ds[split].features.copy()
-            features["embed"] = List(List(Value("int64")))
+            features["ids"] = List(List(Value("int64")))
             ds[split] = ds[split].map(
-                to_embed_idx,
+                to_embed_ids,
                 features=features,
                 new_fingerprint=Hasher.hash(
                     (
