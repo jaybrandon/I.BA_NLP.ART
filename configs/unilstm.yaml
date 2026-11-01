@@ -6,11 +6,11 @@ patience: 5
 rnn_type: "lstm"
 bidirectional: false
 rnn_layers: 2
-rnn_hidden_dim: 256
-hidden_dim: 256
-dropout: 0.2
-weight_decay: 0.01
-learning_rate: 0.001
+rnn_hidden_dim: 128
+hidden_dim: 512
+dropout: 0.15760297176552637
+weight_decay: 0.005752365080391665
+learning_rate: 0.0010910457535569982
 optimizer: "adamw"
 loss_fn: "cross_entropy"
 seed: 42
