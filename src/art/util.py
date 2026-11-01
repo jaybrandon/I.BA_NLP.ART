@@ -3,6 +3,7 @@ import random
 
 import numpy as np
 import torch
+from torch.nn.utils.rnn import pad_sequence
 
 SEED = 42
 
@@ -38,3 +39,14 @@ def get_device() -> str:
     if torch.accelerator.is_available():
         return torch.accelerator.current_accelerator().type
     return "cpu"
+
+
+def collate_fn(batch):  # batch: list of dicts, each with "ids": [seq_h1, seq_h2]
+    seqs = [torch.tensor(s) for item in batch for s in item["ids"]]
+    lengths = torch.tensor([len(s) for s in seqs])  # (2B,)
+    ids = pad_sequence(seqs, batch_first=True, padding_value=0)  # (2B, S)
+    B = len(batch)
+    return (
+        (ids.reshape(B, 2, -1), lengths.reshape(B, 2)),
+        torch.tensor([item["label"] for item in batch]),
+    )

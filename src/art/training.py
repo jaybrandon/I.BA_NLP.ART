@@ -58,6 +58,16 @@ def fit(
     return best_metrics
 
 
+def to_device(x, device):
+    if isinstance(x, torch.Tensor):
+        return x.to(device)
+    if isinstance(x, dict):
+        return {k: to_device(v, device) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return type(x)(to_device(v, device) for v in x)
+    return x
+
+
 def train(dataloader, model, loss_fn, optimizer, device):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
@@ -69,8 +79,8 @@ def train(dataloader, model, loss_fn, optimizer, device):
 
     prog = tqdm(dataloader, "train", num_batches, leave=False)
 
-    for X, y in prog:
-        X, y = X.to(device), y.to(device)
+    for batch in prog:
+        X, y = to_device(batch, device)
 
         pred = model(X)
         loss = loss_fn(pred, y)
@@ -98,8 +108,8 @@ def evaluate(dataloader, model, loss_fn, device):
     val_loss, correct = 0, 0
 
     with torch.no_grad():
-        for X, y in tqdm(dataloader, "eval", num_batches, leave=False):
-            X, y = X.to(device), y.to(device)
+        for batch in tqdm(dataloader, "eval", num_batches, leave=False):
+            X, y = to_device(batch, device)
 
             pred = model(X)
             val_loss += loss_fn(pred, y).item()
