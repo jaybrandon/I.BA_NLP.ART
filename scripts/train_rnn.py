@@ -87,18 +87,12 @@ def main():
             ds["train"],
             batch_size=config.batch_size,
             shuffle=True,
-            num_workers=4,
-            pin_memory=True,
-            persistent_workers=True,
             collate_fn=collate_fn,
         )
         val_loader = DataLoader(
             ds["validation"],
             batch_size=config.batch_size,
             shuffle=False,
-            num_workers=4,
-            pin_memory=True,
-            persistent_workers=True,
             collate_fn=collate_fn,
         )
 
@@ -128,6 +122,7 @@ def main():
 
 if args.sweep:
     sweep_cfg = yaml.safe_load(args.sweep.open())
+    sweep_cfg["name"] = args.config.stem
     sweep_id = wandb.sweep(
         sweep_cfg, entity=get_env("WANDB_ENTITY"), project=get_env("WANDB_PROJECT")
     )
