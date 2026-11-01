@@ -11,7 +11,7 @@ import wandb
 from art.config import CHECKPOINTS_DIR, ROOT, W2V_MODEL
 from art.data import get_dataset, to_tensor_ds
 from art.embedding import add_embed
-from art.models import EmbeddingClassifier, load_w2v
+from art.models import MLPClassifier, load_w2v
 from art.training import fit
 from art.util import get_device, get_env, set_seeds
 
@@ -63,7 +63,7 @@ def main():
 
         set_seeds(config.seed)
 
-        model = EmbeddingClassifier(in_dim, 1, config.hidden_dim, config.dropout)
+        model = MLPClassifier(in_dim, 1, config.hidden_dim, config.dropout)
         model.to(device)
         run.summary["n_params"] = sum(p.numel() for p in model.parameters())
 

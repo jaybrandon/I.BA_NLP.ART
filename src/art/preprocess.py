@@ -25,7 +25,7 @@ def build_vocab(ds: DatasetDict, wv) -> tuple[dict[str, int], torch.Tensor]:
     embeddings = torch.zeros(len(vocab), wv.vector_size)
     for t, i in vocab.items():
         if t in wv:
-            embeddings[i] = torch.from_numpy(wv[t].copy())
+            embeddings[i] = torch.from_numpy(wv[t].copy()).float()
 
     return vocab, embeddings
 

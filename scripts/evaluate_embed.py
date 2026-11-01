@@ -11,7 +11,7 @@ import wandb
 from art.config import CHECKPOINTS_DIR
 from art.data import get_dataset, to_tensor_ds
 from art.embedding import add_embed
-from art.models import EmbeddingClassifier, load_w2v
+from art.models import MLPClassifier, load_w2v
 from art.training import evaluate
 from art.util import get_device, get_env
 
@@ -59,7 +59,7 @@ test_ds = to_tensor_ds(ds["test"])
 
 in_dim = test_ds.tensors[0].shape[-1]
 
-model = EmbeddingClassifier(in_dim, 1, config["hidden_dim"], config.get("dropout", 0.0))
+model = MLPClassifier(in_dim, 1, config["hidden_dim"], config.get("dropout", 0.0))
 model.load_state_dict(torch.load(checkpoint, map_location=device))
 model.to(device)
 
